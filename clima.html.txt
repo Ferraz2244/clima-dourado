@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Clima Dourado</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    :root {
+      --primary-color: #d4af37;   /* dourado pastel */
+      --secondary-color: #f1d77e; /* dourado claro */
+      --text-color: #2e2e2e;      /* quase preto */
+      --background-color: #f8f5f0;/* bege claro */
+      --card-bg-color: #ffffff;
+      --shadow-color: rgba(0, 0, 0, 0.1);
+    }
+
+    body {
+      font-family: 'Poppins', sans-serif;
+      background-color: var(--background-color);
+      color: var(--text-color);
+      margin: 0;
+      padding: 1rem;
+      line-height: 1.6;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+    }
+
+    main {
+      width: 100%;
+      max-width: 900px;
+      padding: 1rem;
+      box-shadow: 0 10px 25px -3px var(--shadow-color);
+      border-radius: 12px;
+      background-color: var(--card-bg-color);
+    }
+
+    .title {
+      text-align: center;
+      color: var(--primary-color);
+      font-size: 2.5rem;
+      margin-bottom: 2rem;
+      font-weight: 700;
+    }
+
+    .search-container {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      margin-bottom: 1rem;
+    }
+
+    #city-input {
+      padding: 12px;
+      border: 1px solid #d1d5db;
+      border-radius: 8px;
+      width: 60%;
+      font-size: 1rem;
+      transition: box-shadow 0.3s;
+    }
+
+    #city-input:focus {
+      outline: none;
+      box-shadow: 0 0 0 3px var(--secondary-color);
+    }
+
+    #search-button {
+      padding: 12px 24px;
+      background-color: var(--primary-color);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 1rem;
+      transition: background-color 0.3s, transform 0.2s;
+    }
+
+    #search-button:hover {
+      background-color: #b89c2e;
+      transform: translateY(-2px);
+    }
+
+    .status-message {
+      text-align: center;
+      color: #b91c1c;
+      min-height: 20px;
+      margin-bottom: 1rem;
+    }
+
+    .weather-card {
+      border-radius: 12px;
+      padding: 2rem;
+      text-align: center;
+      margin-bottom: 2rem;
+      background: linear-gradient(135deg, #f9f6f1, #f1e5c9);
+      opacity: 0;
+      transition: opacity 0.5s ease-in-out;
+    }
+
+    .weather-card.visible {
+      opacity: 1;
+    }
+
+    #location-name {
+      font-size: 2rem;
+      color: var(--primary-color);
+      margin-bottom: 1rem;
+    }
+
+    .current-info {
+      display: flex;
+      justify-content: space-around;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    .temp-icon {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    #weather-icon {
+      font-size: 5rem;
+      color: var(--primary-color);
+    }
+
+    .current-temp {
+      font-size: 4rem;
+      font-weight: 600;
+      margin: 0.5rem 0;
+      color: var(--text-color);
+    }
+
+    .details {
+      text-align: left;
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+
+    .hourly-forecast h2 {
+      text-align: center;
+      margin-bottom: 1.5rem;
+      font-size: 2rem;
+      color: var(--text-color);
+    }
+
+    #hourly-data {
+      display: flex;
+      gap: 1rem;
+      overflow-x: auto;
+      padding-bottom: 1rem;
+    }
+
+    .hourly-item {
+      background-color: var(--card-bg-color);
+      border-radius: 10px;
+      padding: 1rem;
+      min-width: 120px;
+      text-align: center;
+      box-shadow: 0 4px 6px var(--shadow-color);
+      flex-shrink: 0;
+      transition: transform 0.2s ease-in-out;
+    }
+
+    .hourly-item:hover {
+      transform: translateY(-5px);
+    }
+
+    .hourly-item i {
+      font-size: 2rem;
+      margin-bottom: 0.5rem;
+      color: var(--primary-color);
+    }
+
+    .hourly-item strong {
+      font-size: 1.1rem;
+      color: var(--primary-color);
+    }
+
+    @media (max-width: 600px) {
+      .current-info {
+        flex-direction: column;
+        gap: 2rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <h1 class="title">Clima Dourado</h1>
+
+    <div class="search-container">
+      <input type="text" id="city-input" placeholder="Digite o nome da cidade...">
+      <button id="search-button">Buscar</button>
+    </div>
+
+    <div id="status-message" class="status-message"></div>
+
+    <section class="weather-card current-weather">
+      <h2 id="location-name">Cidade...</h2>
+      <div class="current-info">
+        <div class="temp-icon">
+          <i id="weather-icon" class="fas fa-cloud"></i> 
+          <p class="current-temp"><span id="current-temp">--</span> °C</p>
+        </div>
+        <div class="details">
+          <p><strong>Hora:</strong> <span id="current-time">--</span></p>
+          <p><strong>Vento:</strong> <span id="current-wind">--</span> m/s</p>
+          <p><strong>Umidade:</strong> <span id="current-humidity">--</span> %</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="hourly-forecast">
+      <h2>Previsão Horária</h2>
+      <div id="hourly-data"></div>
+    </section>
+  </main>
+
+  <script>
+    const cityInput = document.getElementById('city-input');
+    const searchButton = document.getElementById('search-button');
+    const locationName = document.getElementById('location-name');
+    const currentTime = document.getElementById('current-time');
+    const currentTemp = document.getElementById('current-temp');
+    const currentWind = document.getElementById('current-wind');
+    const currentHumidity = document.getElementById('current-humidity');
+    const weatherIcon = document.getElementById('weather-icon');
+    const hourlyDataContainer = document.getElementById('hourly-data');
+    const statusMessage = document.getElementById('status-message');
+    const weatherCard = document.querySelector('.weather-card');
+
+    const weatherApiUrl = 'https://api.open-meteo.com/v1/forecast?';
+    const geocodingApiUrl = 'https://geocoding-api.open-meteo.com/v1/search?';
+
+    async function fetchWeatherData(city) {
+      if (!city) {
+        statusMessage.innerText = 'Por favor, insira o nome de uma cidade.';
+        return;
+      }
+
+      try {
+        statusMessage.innerText = 'Carregando...';
+        weatherCard.classList.remove('visible');
+
+        const geoResponse = await fetch(`${geocodingApiUrl}name=${city}&count=1&language=pt`);
+        const geoData = await geoResponse.json();
+
+        if (!geoData.results || geoData.results.length === 0) {
+          statusMessage.innerText = 'Cidade não encontrada.';
+          return;
+        }
+
+        const location = geoData.results[0];
+        const latitude = location.latitude;
+        const longitude = location.longitude;
+        const locationDisplayName = location.name;
+
+        const weatherResponse = await fetch(
+          `${weatherApiUrl}latitude=${latitude}&longitude=${longitude}&current=temperature_2m,wind_speed_10m,relative_humidity_2m&hourly=temperature_2m,relative_humidity_2m&timezone=America%2FSao_Paulo`
+        );
+        const weatherData = await weatherResponse.json();
+
+        displayCurrentWeather(weatherData.current, locationDisplayName);
+        displayHourlyForecast(weatherData.hourly);
+
+        statusMessage.innerText = '';
+        weatherCard.classList.add('visible');
+
+      } catch (error) {
+        console.error(error);
+        statusMessage.innerText = 'Erro ao buscar dados.';
+      }
+    }
+
+    function displayCurrentWeather(current, cityName) {
+      const formattedTime = new Date(current.time).toLocaleString('pt-BR', {
+        day: '2-digit', month: '2-digit', year: 'numeric',
+        hour: '2-digit', minute: '2-digit'
+      });
+
+      locationName.innerText = cityName;
+      currentTime.innerText = formattedTime;
+      currentTemp.innerText = current.temperature_2m;
+      currentWind.innerText = current.wind_speed_10m;
+      currentHumidity.innerText = current.relative_humidity_2m;
+
+      if (current.temperature_2m > 25) {
+        weatherIcon.className = 'fas fa-sun';
+      } else if (current.temperature_2m > 15) {
+        weatherIcon.className = 'fas fa-cloud-sun';
+      } else {
+        weatherIcon.className = 'fas fa-cloud';
+      }
+    }
+
+    function displayHourlyForecast(hourly) {
+      hourlyDataContainer.innerHTML = '';
+
+      for (let i = 0; i < hourly.time.length; i++) {
+        const hourlyItem = document.createElement('div');
+        hourlyItem.className = 'hourly-item';
+
+        const time = new Date(hourly.time[i]).getHours();
+        const temp = hourly.temperature_2m[i];
+        const humidity = hourly.relative_humidity_2m[i];
+
+        let iconClass = 'fas fa-cloud';
+        if (temp > 25) {
+          iconClass = 'fas fa-sun';
+        } else if (temp > 15) {
+          iconClass = 'fas fa-cloud-sun';
+        }
+
+        hourlyItem.innerHTML = `
+          <p><strong>${time}h</strong></p>
+          <i class="${iconClass}"></i>
+          <p>🌡️ ${temp} °C</p>
+          <p>💧 ${humidity} %</p>
+        `;
+
+        hourlyDataContainer.appendChild(hourlyItem);
+      }
+    }
+
+    searchButton.addEventListener('click', () => fetchWeatherData(cityInput.value));
+    cityInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') fetchWeatherData(cityInput.value); });
+
+    fetchWeatherData('São Paulo');
+  </script>
+</body>
+</html>
+
+
